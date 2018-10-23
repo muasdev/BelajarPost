@@ -7,4 +7,5 @@ public class Config {
     public static final String API_DIR = "/post";
 
     public static final String API_UPLOAD = BASE_URL + API_DIR + "tambah-penceramah";
+
 }

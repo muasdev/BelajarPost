@@ -1,15 +1,18 @@
 package com.example.windows.aplikasipengaduan.ui.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +24,7 @@ import com.example.windows.aplikasipengaduan.R;
 import com.example.windows.aplikasipengaduan.Upload.UploadServices;
 import com.example.windows.aplikasipengaduan.Utils.ImageUtils;
 
+import java.io.File;
 import java.io.IOException;
 
 import retrofit2.Call;
@@ -29,13 +33,14 @@ import retrofit2.Response;
 
 public class FormPengaduanActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE = 1;
-    private static final int PERMISSION_REQUEST_STORAGE = 2;
-
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static String imageStoragePath;
+    // key to store image path in savedInstance state
+    public static final String KEY_IMAGE_STORAGE_PATH = "image_path";
+    // Bitmap sampling size
+    public static final int BITMAP_SAMPLE_SIZE = 8;
 
 
-    private static final String TYPE_1 = "multipart";
     private static final String TYPE_2 = "base64";
 
     EditText edtNama, edtKontak, edtAlamat;
@@ -83,6 +88,8 @@ public class FormPengaduanActivity extends AppCompatActivity {
                     Bitmap bitmap = null;
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -91,8 +98,7 @@ public class FormPengaduanActivity extends AppCompatActivity {
                     String nama = edtNama.getText().toString();
                     String kontak = edtKontak.getText().toString();
                     String alamat = edtAlamat.getText().toString();
-                    String encoded = ImageUtils.bitmapToBase64String(bitmap, 100);
-                    Log.d("TAG", "onClick: " + encoded);
+                    String encoded = ImageUtils.bitmapToBase64String(bitmap, 50);
 
                     uploadBase64(nama, kontak, alamat, encoded);
                 } else {
@@ -106,73 +112,105 @@ public class FormPengaduanActivity extends AppCompatActivity {
 
     private void uploadBase64(String nama, String kontak, String alamat, String gmb) {
         uploadService = new UploadServices();
+
+        // Set up progress before call
+        final ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(FormPengaduanActivity.this);
+//        progressDoalog.setMax(100);
+        progressDoalog.setMessage("loading....");
+        progressDoalog.setTitle("Uploading data....");
+//        progressDoalog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        // show it
+        progressDoalog.show();
+
         uploadService.uploadPhotoBase64(TYPE_2, nama, kontak, alamat, gmb, new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 BaseResponse baseResponse = (BaseResponse) response.body();
 
+                Toast.makeText(FormPengaduanActivity.this, "sukses terkirims", Toast.LENGTH_SHORT).show();
+
                 if (baseResponse != null) {
-                    Toast.makeText(getApplicationContext(), baseResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FormPengaduanActivity.this, "sukses terkirims", Toast.LENGTH_SHORT).show();
+                    progressDoalog.dismiss();
                 }
             }
 
             @Override
             public void onFailure(Call call, Throwable t) {
                 t.printStackTrace();
+                progressDoalog.dismiss();
             }
         });
     }
 
     //    takephotosfromcamera
-//    lihat disini https://developer.android.com/training/camera/photobasics#java
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
+        Intent m_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File file = new File(Environment.getExternalStorageDirectory(), "MyPhoto.jpg");
+        uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", file);
+        m_intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+        startActivityForResult(m_intent, REQUEST_IMAGE_CAPTURE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            /*Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            imgThumb.setImageBitmap(imageBitmap);*/
-            if (data != null) {
-                uri = data.getData();
+        switch (requestCode) {
+            //TODO... onCamera Picker Result
+            case REQUEST_IMAGE_CAPTURE:
+                if (resultCode == RESULT_OK) {
 
-                imgThumb.setImageURI(uri);
-            }
+                    //File object of camera image
+                    File file = new File(Environment.getExternalStorageDirectory(), "MyPhoto.jpg");
+
+                    //Uri of camera image
+                    uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", file);
+
+                    Bitmap bitmap = optimizeBitmap(BITMAP_SAMPLE_SIZE, imageStoragePath);
+
+                    imgThumb.setImageBitmap(bitmap);
+                    imgThumb.setImageURI(uri);
+                }
+                break;
         }
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                uri = data.getData();
+    /**
+     * Saving stored image path to saved instance state
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-                imgThumb.setImageURI(uri);
-            }
-        }
-    }*/
+        // save file url in bundle as it will be null on screen orientation
+        // changes
+        outState.putString(KEY_IMAGE_STORAGE_PATH, imageStoragePath);
+    }
 
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    /**
+     * Restoring image path from saved instance state
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
-                }
+        // get the file url
+        imageStoragePath = savedInstanceState.getString(KEY_IMAGE_STORAGE_PATH);
+    }
 
-                return;
-            }
-        }
-    }*/
+    /**
+     * Downsizing the bitmap to avoid OutOfMemory exceptions
+     */
+    public static Bitmap optimizeBitmap(int sampleSize, String filePath) {
+        // bitmap factory
+        BitmapFactory.Options options = new BitmapFactory.Options();
+
+        // downsizing image as it throws OutOfMemory Exception for larger
+        // images
+        options.inSampleSize = sampleSize;
+
+        return BitmapFactory.decodeFile(filePath, options);
+    }
 
 }
