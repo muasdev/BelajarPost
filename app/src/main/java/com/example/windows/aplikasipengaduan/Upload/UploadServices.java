@@ -6,9 +6,7 @@ import com.example.windows.aplikasipengaduan.BuildConfig;
 
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -26,7 +24,7 @@ public class UploadServices {
         okhttpBuilder.readTimeout(60, TimeUnit.SECONDS);
         okhttpBuilder.retryOnConnectionFailure(true);
 
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             okhttpBuilder.addInterceptor(interceptor);
@@ -41,11 +39,7 @@ public class UploadServices {
         uploadInterface = retrofit.create(ApiServices.class);
     }
 
-    public void uploadPhotoMultipart(RequestBody action, RequestBody nama, RequestBody kontak, RequestBody alamat, MultipartBody.Part gmb, Callback callback) {
-        uploadInterface.uploadPhotoMultipart(action,  nama, kontak, alamat, gmb).enqueue(callback);
-    }
-
-    public void uploadPhotoBase64(String action, String nama, String kontak, String alamat, String gmb, Callback callback) {
-        uploadInterface.uploadPhotoBase64(action, nama, kontak, alamat, gmb).enqueue(callback);
+    public void postData(String action, String nama, String alamat, String dusun, String kelurahan, String kecamatan, String no_telpon, String uraian_pengaduan, String kordinat, String gmb, Callback callback) {
+        uploadInterface.postData(action, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, gmb).enqueue(callback);
     }
 }

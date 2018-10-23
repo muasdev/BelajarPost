@@ -11,21 +11,26 @@ import retrofit2.http.Part;
 
 public interface ApiServices {
 
-    @Multipart
+   /* @Multipart
     @POST("post/tambah-penceramah")
     Call<BaseResponse> uploadPhotoMultipart(
             @Part("action") RequestBody action,
             @Part("action") RequestBody nama,
             @Part("action") RequestBody kontak,
             @Part("action") RequestBody alamat,
-            @Part MultipartBody.Part gmb);
+            @Part MultipartBody.Part gmb);*/
 
     @FormUrlEncoded
-    @POST("post/tambah-penceramah")
-    Call<BaseResponse> uploadPhotoBase64(
+    @POST("post/buat-pengaduan")
+    Call<BaseResponse> postData(
             @Field("action") String action,
             @Field("nama") String nama,
-            @Field("kontak") String kontak,
-            @Field("alamat") String alamat,
+            @Field("kontak") String alamar,
+            @Field("alamat") String dusun,
+            @Field("kelurahan") String kelurahan,
+            @Field("kecamatan") String kecamatan,
+            @Field("no_telpon") String no_telpon,
+            @Field("uraian_pengaduan") String uraian_pengaduan,
+            @Field("kordinat") String kordinat,
             @Field("gmb") String gmb);
 }

@@ -39,11 +39,9 @@ public class FormPengaduanActivity extends AppCompatActivity {
     public static final String KEY_IMAGE_STORAGE_PATH = "image_path";
     // Bitmap sampling size
     public static final int BITMAP_SAMPLE_SIZE = 8;
-
-
     private static final String TYPE_2 = "base64";
 
-    EditText edtNama, edtKontak, edtAlamat;
+    EditText edtNama, edtAlamat, edtDusun, edtKelurahan, edtKecamatan, edtNoTelpon, edtUraian;
     private ImageView imgThumb;
 
     private Button btnUpload2, btnTakePicture;
@@ -68,8 +66,12 @@ public class FormPengaduanActivity extends AppCompatActivity {
         });
 
         edtNama = (EditText) findViewById(R.id.edtNama);
-        edtKontak = (EditText) findViewById(R.id.edtKontak);
         edtAlamat = (EditText) findViewById(R.id.edtAlamat);
+        edtDusun = (EditText) findViewById(R.id.edtDusun);
+        edtKelurahan = (EditText) findViewById(R.id.edtKelurahan);
+        edtKecamatan = (EditText) findViewById(R.id.edtKecamatan);
+        edtNoTelpon = (EditText) findViewById(R.id.edtNoTelpon);
+        edtUraian = (EditText) findViewById(R.id.edtUraian);
         imgThumb = (ImageView) findViewById(R.id.img_thumb);
         btnUpload2 = (Button) findViewById(R.id.btn_upload_2);
         btnTakePicture = (Button) findViewById(R.id.btnTakePicture);
@@ -94,13 +96,17 @@ public class FormPengaduanActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-
                     String nama = edtNama.getText().toString();
-                    String kontak = edtKontak.getText().toString();
                     String alamat = edtAlamat.getText().toString();
+                    String dusun = edtDusun.getText().toString();
+                    String kelurahan = edtKelurahan.getText().toString();
+                    String kecamatan = edtKecamatan.getText().toString();
+                    String no_telpon = edtNoTelpon.getText().toString();
+                    String uraian_pengaduan = edtUraian.getText().toString();
                     String encoded = ImageUtils.bitmapToBase64String(bitmap, 50);
 
-                    uploadBase64(nama, kontak, alamat, encoded);
+                    String kordinat = "-4.008725, 119.621325";
+                    uploadBase64(nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, encoded);
                 } else {
                     Toast.makeText(getApplicationContext(), "You must choose the image", Toast.LENGTH_SHORT).show();
                 }
@@ -110,7 +116,7 @@ public class FormPengaduanActivity extends AppCompatActivity {
     }
 
 
-    private void uploadBase64(String nama, String kontak, String alamat, String gmb) {
+    private void uploadBase64(String nama, String alamat, String dusun, String kelurahan, String kecamatan, String no_telpon, String uraian_pengaduan, String kordinat, String gmb) {
         uploadService = new UploadServices();
 
         // Set up progress before call
@@ -123,7 +129,7 @@ public class FormPengaduanActivity extends AppCompatActivity {
         // show it
         progressDoalog.show();
 
-        uploadService.uploadPhotoBase64(TYPE_2, nama, kontak, alamat, gmb, new Callback() {
+        uploadService.postData(TYPE_2, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, gmb, new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 BaseResponse baseResponse = (BaseResponse) response.body();
