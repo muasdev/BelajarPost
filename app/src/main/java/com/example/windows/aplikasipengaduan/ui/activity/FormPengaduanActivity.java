@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -47,6 +48,7 @@ public class FormPengaduanActivity extends AppCompatActivity {
     private Button btnUpload2, btnTakePicture;
 
     private UploadServices uploadService;
+    private NestedScrollView parentView;
     private Uri uri;
 
     @Override
@@ -56,12 +58,38 @@ public class FormPengaduanActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (uri != null) {
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    String nama = edtNama.getText().toString();
+                    String alamat = edtAlamat.getText().toString();
+                    String dusun = edtDusun.getText().toString();
+                    String kelurahan = edtKelurahan.getText().toString();
+                    String kecamatan = edtKecamatan.getText().toString();
+                    String no_telpon = edtNoTelpon.getText().toString();
+                    String uraian_pengaduan = edtUraian.getText().toString();
+                    String encoded = ImageUtils.bitmapToBase64String(bitmap, 50);
+
+                    String kordinat = "-4.008725, 119.621325";
+                    uploadBase64(nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, encoded);
+                } else {
+                    Toast.makeText(getApplicationContext(), "You must choose the image", Toast.LENGTH_SHORT).show();
+                }
+
+
             }
         });
 
@@ -139,6 +167,8 @@ public class FormPengaduanActivity extends AppCompatActivity {
                 if (baseResponse != null) {
                     Toast.makeText(FormPengaduanActivity.this, "sukses terkirims", Toast.LENGTH_SHORT).show();
                     progressDoalog.dismiss();
+                    Snackbar.make(parentView, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
             }
 

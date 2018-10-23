@@ -25,8 +25,8 @@ public interface ApiServices {
     Call<BaseResponse> postData(
             @Field("action") String action,
             @Field("nama") String nama,
-            @Field("kontak") String alamar,
-            @Field("alamat") String dusun,
+            @Field("alamat") String alamat,
+            @Field("dusun") String dusun,
             @Field("kelurahan") String kelurahan,
             @Field("kecamatan") String kecamatan,
             @Field("no_telpon") String no_telpon,
