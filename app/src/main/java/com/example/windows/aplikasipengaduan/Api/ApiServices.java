@@ -1,29 +1,30 @@
 package com.example.windows.aplikasipengaduan.Api;
 
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
+import com.example.windows.aplikasipengaduan.Model.PengaduanDiterima;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.Multipart;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
 
 public interface ApiServices {
 
-   /* @Multipart
-    @POST("post/tambah-penceramah")
-    Call<BaseResponse> uploadPhotoMultipart(
-            @Part("action") RequestBody action,
-            @Part("action") RequestBody nama,
-            @Part("action") RequestBody kontak,
-            @Part("action") RequestBody alamat,
-            @Part MultipartBody.Part gmb);*/
 
+//   http://pengaduan.xakti.tech/api/pengaduan-diterima
+//    http://pmptsp.pinrangkab.go.id/pengaduan/api/pengaduan-diterima
+   @GET("pengaduan/api/pengaduan-diterima")
+   Call<ArrayList<PengaduanDiterima>> getSemuaPengaduan();
+
+//http://pmptsp.pinrangkab.go.id/pengaduan/post/buat-pengaduan
     @FormUrlEncoded
-    @POST("post/buat-pengaduan")
+    @POST("pengaduan/post/buat-pengaduan")
     Call<BaseResponse> postData(
             @Field("action") String action,
+            @Field("id_user") String id_user,
             @Field("nama") String nama,
             @Field("alamat") String alamat,
             @Field("dusun") String dusun,

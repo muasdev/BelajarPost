@@ -39,7 +39,7 @@ public class UploadServices {
         uploadInterface = retrofit.create(ApiServices.class);
     }
 
-    public void postData(String action, String nama, String alamat, String dusun, String kelurahan, String kecamatan, String no_telpon, String uraian_pengaduan, String kordinat, String gmb, Callback callback) {
-        uploadInterface.postData(action, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, gmb).enqueue(callback);
+    public void postData(String action, String id_user, String nama, String alamat, String dusun, String kelurahan, String kecamatan, String no_telpon, String uraian_pengaduan, String kordinat, String gmb, Callback callback) {
+        uploadInterface.postData(action, id_user, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, gmb).enqueue(callback);
     }
 }

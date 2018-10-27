@@ -1,19 +1,28 @@
 package com.example.windows.aplikasipengaduan.ui.activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.windows.aplikasipengaduan.Api.BaseResponse;
+import com.example.windows.aplikasipengaduan.Gps.GPSTracker;
 import com.example.windows.aplikasipengaduan.R;
 import com.example.windows.aplikasipengaduan.Upload.UploadServices;
 import com.example.windows.aplikasipengaduan.Utils.ImageUtils;
@@ -42,14 +52,35 @@ public class FormPengaduanActivity extends AppCompatActivity {
     public static final int BITMAP_SAMPLE_SIZE = 8;
     private static final String TYPE_2 = "base64";
 
-    EditText edtNama, edtAlamat, edtDusun, edtKelurahan, edtKecamatan, edtNoTelpon, edtUraian;
+    EditText edtAlamat, edtDusun, edtKelurahan, edtKecamatan, edtNoTelpon, edtUraian;
+    TextInputEditText edtNama;
     private ImageView imgThumb;
 
-    private Button btnUpload2, btnTakePicture;
+    private Button btnTakePicture;
 
     private UploadServices uploadService;
     private NestedScrollView parentView;
     private Uri uri;
+
+    // GPSTracker class
+    GPSTracker gps;
+    double latitude;
+    double longitude;
+    String lat;
+    String lang;
+
+    String IMEI_device;
+    TelephonyManager telephonyManager;
+
+    //validate
+    boolean isEmptyFields;
+
+    Bitmap bitmap;
+
+    //layout
+    NestedScrollView nestedScrollView;
+
+    CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,94 +91,173 @@ public class FormPengaduanActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        edtNama = (TextInputEditText) findViewById(R.id.edtNama);
+
+        edtAlamat = (EditText) findViewById(R.id.edtAlamat);
+
+        edtDusun = (EditText) findViewById(R.id.edtDusun);
+
+        edtKelurahan = (EditText) findViewById(R.id.edtKelurahan);
+
+        edtKecamatan = (EditText) findViewById(R.id.edtKecamatan);
+
+        edtNoTelpon = (EditText) findViewById(R.id.edtNoTelpon);
+
+        edtUraian = (EditText) findViewById(R.id.edtUraian);
+
+        imgThumb = (ImageView) findViewById(R.id.img_thumb);
+
+        btnTakePicture = (Button) findViewById(R.id.btnTakePicture);
+
+        nestedScrollView = (NestedScrollView) findViewById(R.id.parentView);
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                getCordinate();
+
+
+                String nama = edtNama.getText().toString();
+                String alamat = edtAlamat.getText().toString();
+                String dusun = edtDusun.getText().toString();
+                String kelurahan = edtKelurahan.getText().toString();
+                String kecamatan = edtKecamatan.getText().toString();
+                String no_telpon = edtNoTelpon.getText().toString();
+                String uraian_pengaduan = edtUraian.getText().toString();
+
+
+//                String encoded = ImageUtils.bitmapToBase64String(bitmap, 50);
+
+
+                lat = String.valueOf(latitude);
+                lang = String.valueOf(longitude);
+                String kordinat = lat + "," + lang;
+//                    Toast.makeText(getApplicationContext(), kordinat, Toast.LENGTH_SHORT).show();
+                isEmptyFields = false;
+
                 if (uri != null) {
-                    Bitmap bitmap = null;
+                    bitmap = null;
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-                    String nama = edtNama.getText().toString();
-                    String alamat = edtAlamat.getText().toString();
-                    String dusun = edtDusun.getText().toString();
-                    String kelurahan = edtKelurahan.getText().toString();
-                    String kecamatan = edtKecamatan.getText().toString();
-                    String no_telpon = edtNoTelpon.getText().toString();
-                    String uraian_pengaduan = edtUraian.getText().toString();
-                    String encoded = ImageUtils.bitmapToBase64String(bitmap, 50);
-
-                    String kordinat = "-4.008725, 119.621325";
-                    uploadBase64(nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, encoded);
                 } else {
-                    Toast.makeText(getApplicationContext(), "You must choose the image", Toast.LENGTH_SHORT).show();
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "ambil gambar", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
                 }
 
-
+                if (TextUtils.isEmpty(nama)) {
+                    isEmptyFields = true;
+//                        edtNama.setError("masukkan nama anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan nama anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (TextUtils.isEmpty(alamat)) {
+                    isEmptyFields = true;
+//                            edtAlamat.setError("masukkan alamat anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan alamat anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (TextUtils.isEmpty(dusun)) {
+                    isEmptyFields = true;
+//                                edtDusun.setError("masukkan dusun anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan dusun anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (TextUtils.isEmpty(kelurahan)) {
+                    isEmptyFields = true;
+//                                    edtKelurahan.setError("masukkan kelurahan anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan kelurahan anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (TextUtils.isEmpty(kecamatan)) {
+                    isEmptyFields = true;
+//                                        edtKecamatan.setError("masukkan kecamatan anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan kelurahan anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (TextUtils.isEmpty(no_telpon)) {
+                    isEmptyFields = true;
+//                                            edtNoTelpon.setError("masukkan no telpon anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan no telpon anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (TextUtils.isEmpty(uraian_pengaduan)) {
+                    isEmptyFields = true;
+//                                                edtUraian.setError("masukkan uraian pengaduan anda");
+                    Snackbar snackbar = Snackbar
+                            .make(nestedScrollView, "masukkan pengaduan anda", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else {
+                    String foto = ImageUtils.bitmapToBase64String(bitmap, 50);
+                    getDeviceId();
+                    Log.d("IMEI", "imei: " + IMEI_device);
+                    uploadBase64(IMEI_device, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, foto);
+                }
             }
         });
 
-        edtNama = (EditText) findViewById(R.id.edtNama);
-        edtAlamat = (EditText) findViewById(R.id.edtAlamat);
-        edtDusun = (EditText) findViewById(R.id.edtDusun);
-        edtKelurahan = (EditText) findViewById(R.id.edtKelurahan);
-        edtKecamatan = (EditText) findViewById(R.id.edtKecamatan);
-        edtNoTelpon = (EditText) findViewById(R.id.edtNoTelpon);
-        edtUraian = (EditText) findViewById(R.id.edtUraian);
-        imgThumb = (ImageView) findViewById(R.id.img_thumb);
-        btnUpload2 = (Button) findViewById(R.id.btn_upload_2);
-        btnTakePicture = (Button) findViewById(R.id.btnTakePicture);
 
-        btnTakePicture.setOnClickListener(new View.OnClickListener() {
+        btnTakePicture.setOnClickListener(new View.OnClickListener()
+
+        {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
-            }
-        });
-
-        btnUpload2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (uri != null) {
-                    Bitmap bitmap = null;
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
-                    String nama = edtNama.getText().toString();
-                    String alamat = edtAlamat.getText().toString();
-                    String dusun = edtDusun.getText().toString();
-                    String kelurahan = edtKelurahan.getText().toString();
-                    String kecamatan = edtKecamatan.getText().toString();
-                    String no_telpon = edtNoTelpon.getText().toString();
-                    String uraian_pengaduan = edtUraian.getText().toString();
-                    String encoded = ImageUtils.bitmapToBase64String(bitmap, 50);
-
-                    String kordinat = "-4.008725, 119.621325";
-                    uploadBase64(nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, encoded);
+                // create class object
+                gps = new GPSTracker(FormPengaduanActivity.this);
+                // check if GPS enabled
+                if (gps.canGetLocation()) {
+                    latitude = gps.getLatitude();
+                    longitude = gps.getLongitude();
+                    dispatchTakePictureIntent();
+                    // \n is for new line
+//            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "You must choose the image", Toast.LENGTH_SHORT).show();
+                    // can't get location
+                    // GPS or Network is not enabled
+                    // Ask user to enable GPS/network in settings
+                    gps.showSettingsAlert();
                 }
+
             }
         });
 
     }
 
+    private void getCordinate() {
+        // create class object
+        gps = new GPSTracker(FormPengaduanActivity.this);
+        // check if GPS enabled
+        if (gps.canGetLocation()) {
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+            // \n is for new line
+//            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+        } else {
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings
+            gps.showSettingsAlert();
+        }
+    }
 
-    private void uploadBase64(String nama, String alamat, String dusun, String kelurahan, String kecamatan, String no_telpon, String uraian_pengaduan, String kordinat, String gmb) {
+
+    private void uploadBase64(String id_user, String nama, String alamat, String dusun, String
+            kelurahan, String kecamatan, String no_telpon, String uraian_pengaduan, String
+                                      kordinat, String gmb) {
         uploadService = new UploadServices();
 
-        // Set up progress before call
+// Set up progress before call
         final ProgressDialog progressDoalog;
         progressDoalog = new ProgressDialog(FormPengaduanActivity.this);
 //        progressDoalog.setMax(100);
@@ -157,7 +267,7 @@ public class FormPengaduanActivity extends AppCompatActivity {
         // show it
         progressDoalog.show();
 
-        uploadService.postData(TYPE_2, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, gmb, new Callback() {
+        uploadService.postData(TYPE_2, id_user, nama, alamat, dusun, kelurahan, kecamatan, no_telpon, uraian_pengaduan, kordinat, gmb, new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 BaseResponse baseResponse = (BaseResponse) response.body();
@@ -248,5 +358,27 @@ public class FormPengaduanActivity extends AppCompatActivity {
 
         return BitmapFactory.decodeFile(filePath, options);
     }
+
+    private void getDeviceId() {
+        telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        IMEI_device = telephonyManager.getDeviceId();
+    }
+
+    private void validateInput() {
+
+    }
+
+
+    /*mulai sini*/
 
 }

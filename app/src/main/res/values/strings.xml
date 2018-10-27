@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Aplikasi Pengaduan</string>
     <string name="action_settings">Settings</string>
+    <string name="action_notif">Notif</string>
     <string name="title_activity_form_pengaduan">FormPengaduanActivity</string>
+    <string name="nama">Nama</string>
+    <string name="uraian_aduan">Uraian Pengaduan</string>
 
 </resources>

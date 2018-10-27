@@ -10,134 +10,139 @@
     tools:context=".ui.activity.FormPengaduanActivity"
     tools:showIn="@layout/activity_form_pengaduan">
 
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardCornerRadius="8dp">
 
-        <LinearLayout
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/img_thumb"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher" />
+
+        <Button
+            android:id="@+id/btnTakePicture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="Ambil Gambar" />
 
-            <ImageView
-                android:id="@+id/img_thumb"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/ic_launcher" />
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
 
-            <Button
-                android:id="@+id/btnTakePicture"
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/edtNama"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ambil Gambar" />
+                android:layout_marginTop="10dp"
+                android:hint="Nama"
+                android:background="@drawable/shape"
+                android:inputType="text"
+                android:maxLines="1" />
 
-            <android.support.design.widget.TextInputLayout
+            <!--<EditText
+                android:id="@+id/edtNama"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
+                android:layout_marginTop="10dp"
+                android:hint="Nama" />-->
 
-                <EditText
-                    android:id="@+id/edtNama"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Nama" />
+        </android.support.design.widget.TextInputLayout>
 
-            </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
 
-            <android.support.design.widget.TextInputLayout
+            <EditText
+                android:id="@+id/edtAlamat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
+                android:layout_marginTop="10dp"
+                android:hint="Alamat" />
 
-                <EditText
-                    android:id="@+id/edtAlamat"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Alamat" />
+        </android.support.design.widget.TextInputLayout>
 
-            </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
 
-            <android.support.design.widget.TextInputLayout
+            <EditText
+                android:id="@+id/edtDusun"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
+                android:layout_marginTop="10dp"
+                android:hint="Dusun" />
 
-                <EditText
-                    android:id="@+id/edtDusun"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Dusun" />
+        </android.support.design.widget.TextInputLayout>
 
-            </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
 
-            <android.support.design.widget.TextInputLayout
+            <EditText
+                android:id="@+id/edtKelurahan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
-
-                <EditText
-                    android:id="@+id/edtKelurahan"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Kelurahan" />
+                android:layout_marginTop="10dp"
+                android:hint="Kelurahan" />
 
 
-            </android.support.design.widget.TextInputLayout>
+        </android.support.design.widget.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
+
+            <EditText
+                android:id="@+id/edtKecamatan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
+                android:layout_marginTop="10dp"
+                android:hint="Kecamatan" />
 
-                <EditText
-                    android:id="@+id/edtKecamatan"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Kecamatan" />
+        </android.support.design.widget.TextInputLayout>
 
-            </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
 
-            <android.support.design.widget.TextInputLayout
+            <EditText
+                android:id="@+id/edtNoTelpon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
+                android:layout_marginTop="10dp"
+                android:hint="No. Telpon"
+                android:inputType="phone" />
 
-                <EditText
-                    android:id="@+id/edtNoTelpon"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="No. Telpon" />
+        </android.support.design.widget.TextInputLayout>
 
-            </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/text_in_layout_hint_Style">
 
-            <android.support.design.widget.TextInputLayout
+            <EditText
+                android:id="@+id/edtUraian"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintTextAppearance="@style/text_in_layout_hint_Style">
+                android:layout_marginTop="10dp"
+                android:hint="Uraian Pengaduan"
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLength="100"
+                android:maxLines="10" />
 
-                <EditText
-                    android:id="@+id/edtUraian"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Uraian Pengaduan" />
+        </android.support.design.widget.TextInputLayout>
 
-            </android.support.design.widget.TextInputLayout>
 
-            <Button
-                android:id="@+id/btn_upload_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Kirim data" />
-
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
